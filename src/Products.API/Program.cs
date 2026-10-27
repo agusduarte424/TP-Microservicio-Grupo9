@@ -7,6 +7,21 @@ builder.Services.AddControllers();
 builder.Services.AddPersistence();
 builder.Services.AddScoped<ProductService>();
 
+// Orders: simulado en desarrollo hasta que exista Orders.API, real en el resto
+if (builder.Configuration.GetValue<bool>("OrdersSimulado:Usar"))
+{
+    builder.Services.AddSingleton<IOrdersClient, FakeOrdersClient>();
+}
+else
+{
+    builder.Services.AddHttpClient<IOrdersClient, OrdersClient>(client =>
+    {
+        client.BaseAddress = new Uri(builder.Configuration["Services:OrdersApi"]
+            ?? throw new InvalidOperationException("Falta Services:OrdersApi en appsettings.json"));
+        client.Timeout = TimeSpan.FromSeconds(5);
+    });
+}
+
 var app = builder.Build();
 
 app.InitializeDatabase();
