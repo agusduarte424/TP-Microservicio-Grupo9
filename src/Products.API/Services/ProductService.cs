@@ -52,6 +52,21 @@ namespace Products.API.Services
             return ToResponse(producto);
         }
 
+        /// <summary>Actualiza un producto. Lanza PRD-001 si no existe.</summary>
+        public async Task<ProductResponse> Actualizar(Guid id, UpdateProductRequest request)
+        {
+            var producto = await BuscarOFallar(id);
+
+            producto.Nombre = request.Nombre;
+            producto.Descripcion = request.Descripcion;
+            producto.Precio = request.Precio!.Value;
+            producto.Stock = request.Stock!.Value;
+            producto.Categoria = request.Categoria;
+
+            await _repository.Actualizar(producto);
+            return ToResponse(producto);
+        }
+
         // se reutiliza en GET, PUT y DELETE
         private async Task<Product> BuscarOFallar(Guid id)
         {

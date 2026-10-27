@@ -44,5 +44,15 @@ namespace Products.API.Controllers
             var creado = await _service.Crear(request);
             return CreatedAtAction(nameof(GetById), new { id = creado.Id }, creado);
         }
+
+        /// <summary>Actualiza un producto existente.</summary>
+        [HttpPut("{id:guid}")]
+        [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProductRequest request)
+        {
+            return Ok(await _service.Actualizar(id, request));
+        }
     }
 }
