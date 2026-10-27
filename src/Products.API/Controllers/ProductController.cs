@@ -54,5 +54,16 @@ namespace Products.API.Controllers
         {
             return Ok(await _service.Actualizar(id, request));
         }
+
+        /// <summary>Elimina un producto si no tiene órdenes Pendiente o Confirmada.</summary>
+        [HttpDelete("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _service.Eliminar(id);
+            return NoContent();
+        }
     }
 }

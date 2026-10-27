@@ -37,3 +37,7 @@ Content-Type: application/json
   "stock": 8,
   "categoria": "Electrónica"
 }
+
+
+### Eliminar producto (reemplazá el id)
+DELETE {{url}}/api/products/PEGAR-ID-ACA

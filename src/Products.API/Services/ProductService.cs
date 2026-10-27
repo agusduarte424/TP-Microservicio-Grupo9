@@ -10,10 +10,12 @@ namespace Products.API.Services
     public class ProductService
     {
         private readonly IProductRepository _repository;
+        private readonly IOrdersClient _ordersClient;
 
-        public ProductService(IProductRepository repository)
+        public ProductService(IProductRepository repository, IOrdersClient ordersClient)
         {
             _repository = repository;
+            _ordersClient = ordersClient;
         }
 
         /// <summary>Lista productos, con filtros opcionales por categoría y nombre.</summary>
@@ -65,6 +67,21 @@ namespace Products.API.Services
 
             await _repository.Actualizar(producto);
             return ToResponse(producto);
+        }
+
+        /// <summary>
+        /// Elimina un producto. PRD-001 si no existe, PRD-004 si tiene órdenes activas.
+        /// Si Orders no responde, la excepción corta el método antes de borrar (PRD-005).
+        /// </summary>
+        public async Task Eliminar(Guid id)
+        {
+            await BuscarOFallar(id);
+
+            if (await _ordersClient.TieneOrdenesActivas(id))
+                throw new BusinessRuleException(ErrorCodes.ProductoConOrdenesActivas,
+                    "El producto tiene órdenes activas y no puede eliminarse.");
+
+            await _repository.Eliminar(id);
         }
 
         // se reutiliza en GET, PUT y DELETE
