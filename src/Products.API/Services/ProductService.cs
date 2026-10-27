@@ -30,6 +30,28 @@ namespace Products.API.Services
             return ToResponse(producto);
         }
 
+        /// <summary>Crea un producto. Lanza PRD-003 si ya existe el nombre en esa categoría.</summary>
+        public async Task<ProductResponse> Crear(CreateProductRequest request)
+        {
+            if (await _repository.ExistePorNombreYCategoria(request.Nombre, request.Categoria))
+                throw new BusinessRuleException(ErrorCodes.ProductoDuplicado,
+                    $"Ya existe un producto con ese nombre en la categoría '{request.Categoria}'.");
+
+            var producto = new Product
+            {
+                Id = Guid.NewGuid(),
+                Nombre = request.Nombre,
+                Descripcion = request.Descripcion,
+                Precio = request.Precio!.Value,
+                Stock = request.Stock!.Value,
+                Categoria = request.Categoria,
+                FechaCreacion = DateTime.UtcNow
+            };
+
+            await _repository.Guardar(producto);
+            return ToResponse(producto);
+        }
+
         // se reutiliza en GET, PUT y DELETE
         private async Task<Product> BuscarOFallar(Guid id)
         {

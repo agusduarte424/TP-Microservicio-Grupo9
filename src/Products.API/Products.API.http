@@ -1,6 +1,26 @@
-@Products.API_HostAddress = http://localhost:5034
+@url = http://localhost:5001
 
-GET {{Products.API_HostAddress}}/weatherforecast/
-Accept: application/json
+### Listar productos
+GET {{url}}/api/products
 
-###
+### Crear producto
+POST {{url}}/api/products
+Content-Type: application/json
+
+{
+  "nombre": "Notebook Dell XPS 15",
+  "descripcion": "Notebook de alto rendimiento",
+  "precio": 1500.00,
+  "stock": 10,
+  "categoria": "Electrónica"
+}
+
+### Crear sin precio (tiene que dar 400)
+POST {{url}}/api/products
+Content-Type: application/json
+
+{
+  "nombre": "Mouse",
+  "stock": 5,
+  "categoria": "Accesorios"
+}

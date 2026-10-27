@@ -33,5 +33,16 @@ namespace Products.API.Controllers
         {
             return Ok(await _service.ObtenerPorId(id));
         }
+
+        /// <summary>Crea un producto nuevo.</summary>
+        [HttpPost]
+        [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> Create([FromBody] CreateProductRequest request)
+        {
+            var creado = await _service.Crear(request);
+            return CreatedAtAction(nameof(GetById), new { id = creado.Id }, creado);
+        }
     }
 }
