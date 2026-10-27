@@ -1,0 +1,19 @@
+# Compilación de .NET
+bin/
+obj/
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+
+# Base de datos SQLite local
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+logs/
+*.log
