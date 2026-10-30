@@ -47,5 +47,25 @@ namespace Cart.API.Controllers
         {
             return Ok(await _service.ActualizarItem(userId, productId, request));
         }
+
+        /// <summary>Quita un producto del carrito.</summary>
+        [HttpDelete("{userId:guid}/items/{productId:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> RemoveItem(Guid userId, Guid productId)
+        {
+            await _service.QuitarItem(userId, productId);
+            return NoContent();
+        }
+
+        /// <summary>Vacía el carrito completo.</summary>
+        [HttpDelete("{userId:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Clear(Guid userId)
+        {
+            await _service.Vaciar(userId);
+            return NoContent();
+        }
     }
 }

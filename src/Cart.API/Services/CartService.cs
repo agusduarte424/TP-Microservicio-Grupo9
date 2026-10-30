@@ -77,6 +77,29 @@ namespace Cart.API.Services
             return ToResponse(cart);
         }
 
+        /// <summary>Quita un producto del carrito. CRT-001 sin carrito, CRT-002 si el producto no está.</summary>
+        public async Task QuitarItem(Guid userId, Guid productId)
+        {
+            var cart = await BuscarOFallar(userId);
+
+            var item = cart.Items.FirstOrDefault(i => i.ProductoId == productId)
+                ?? throw new NotFoundException(ErrorCodes.ProductoNoEncontrado, "El producto no está en el carrito.");
+
+            cart.Items.Remove(item);
+            cart.FechaActualizacion = DateTime.UtcNow;
+            await _repository.Guardar(cart);
+        }
+
+        /// <summary>Vacía el carrito: borra todos los items pero el carrito sigue existiendo.</summary>
+        public async Task Vaciar(Guid userId)
+        {
+            var cart = await BuscarOFallar(userId);
+
+            cart.Items.Clear();
+            cart.FechaActualizacion = DateTime.UtcNow;
+            await _repository.Guardar(cart);
+        }
+
         // se reutiliza en GET, PUT y los DELETE
         private async Task<CartModel> BuscarOFallar(Guid userId)
         {
