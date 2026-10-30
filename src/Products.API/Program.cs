@@ -29,6 +29,13 @@ var app = builder.Build();
 
 app.InitializeDatabase();
 
+app.InitializeDatabase();
+
+// Logging (F2): log de inicio y fin de cada request
+app.UseRequestLogging();
+
+app.MapControllers();
+
 app.MapControllers();
 
 app.Run();
