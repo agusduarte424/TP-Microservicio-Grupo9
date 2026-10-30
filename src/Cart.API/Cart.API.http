@@ -1,6 +1,24 @@
-@Cart.API_HostAddress = http://localhost:5247
+@url = http://localhost:5004
+@user = a1b2c3d4-0000-0000-0000-111122223333
+@prod = PEGAR-ID-PRODUCTO
 
-GET {{Cart.API_HostAddress}}/weatherforecast/
-Accept: application/json
+### Ver carrito
+GET {{url}}/api/cart/{{user}}
 
-###
+### Agregar 2
+POST {{url}}/api/cart/{{user}}/items
+Content-Type: application/json
+
+{ "productoId": "{{prod}}", "cantidad": 2 }
+
+### Agregar 3 (suma, queda 5)
+POST {{url}}/api/cart/{{user}}/items
+Content-Type: application/json
+
+{ "productoId": "{{prod}}", "cantidad": 3 }
+
+### Agregar 0 (error CRT-004)
+POST {{url}}/api/cart/{{user}}/items
+Content-Type: application/json
+
+{ "productoId": "{{prod}}", "cantidad": 0 }

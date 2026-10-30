@@ -25,5 +25,16 @@ namespace Cart.API.Controllers
         {
             return Ok(await _service.ObtenerCarrito(userId));
         }
+
+        /// <summary>Agrega un producto al carrito (si ya está, suma la cantidad).</summary>
+        [HttpPost("{userId:guid}/items")]
+        [ProducesResponseType(typeof(CartResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> AddItem(Guid userId, [FromBody] AddCartItemRequest request)
+        {
+            return Ok(await _service.AgregarItem(userId, request));
+        }
     }
 }
