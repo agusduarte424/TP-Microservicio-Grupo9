@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddPersistence();
+builder.Services.AddScoped<CartService>();
 
 // Products API: la URL viene de appsettings, nada fijo en el código
 builder.Services.AddHttpClient<IProductsClient, ProductsClient>(client =>
