@@ -57,6 +57,26 @@ namespace Cart.API.Services
             return ToResponse(cart);
         }
 
+        /// <summary>Reemplaza la cantidad de un producto que ya está en el carrito.</summary>
+        public async Task<CartResponse> ActualizarItem(Guid userId, Guid productId, UpdateCartItemRequest request)
+        {
+            ValidarCantidad(request.Cantidad);
+            var cart = await BuscarOFallar(userId);
+
+            var item = cart.Items.FirstOrDefault(i => i.ProductoId == productId)
+                ?? throw new NotFoundException(ErrorCodes.ProductoNoEncontrado, "El producto no está en el carrito.");
+
+            var producto = await ObtenerProductoOFallar(productId);
+            if (request.Cantidad > producto.Stock)
+                throw new BusinessRuleException(ErrorCodes.StockInsuficiente,
+                    $"Stock insuficiente. Disponible: {producto.Stock}, solicitado: {request.Cantidad}.");
+
+            item.Cantidad = request.Cantidad;
+            cart.FechaActualizacion = DateTime.UtcNow;
+            await _repository.Guardar(cart);
+            return ToResponse(cart);
+        }
+
         // se reutiliza en GET, PUT y los DELETE
         private async Task<CartModel> BuscarOFallar(Guid userId)
         {

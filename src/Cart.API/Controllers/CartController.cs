@@ -36,5 +36,16 @@ namespace Cart.API.Controllers
         {
             return Ok(await _service.AgregarItem(userId, request));
         }
+
+        /// <summary>Cambia la cantidad de un producto del carrito.</summary>
+        [HttpPut("{userId:guid}/items/{productId:guid}")]
+        [ProducesResponseType(typeof(CartResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> UpdateItem(Guid userId, Guid productId, [FromBody] UpdateCartItemRequest request)
+        {
+            return Ok(await _service.ActualizarItem(userId, productId, request));
+        }
     }
 }

@@ -22,3 +22,16 @@ POST {{url}}/api/cart/{{user}}/items
 Content-Type: application/json
 
 { "productoId": "{{prod}}", "cantidad": 0 }
+
+
+### Cambiar cantidad a 4
+PUT {{url}}/api/cart/{{user}}/items/{{prod}}
+Content-Type: application/json
+
+{ "cantidad": 4 }
+
+### Cambiar a 50 (supera el stock, CRT-003)
+PUT {{url}}/api/cart/{{user}}/items/{{prod}}
+Content-Type: application/json
+
+{ "cantidad": 50 }
