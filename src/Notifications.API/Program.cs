@@ -21,6 +21,8 @@ builder.Services.AddHttpClient<IUsersClient, UsersClient>(client =>
     client.Timeout = TimeSpan.FromSeconds(5);
 });
 
+builder.Services.AddScoped<NotificationService>();
+
 var app = builder.Build();
 
 // Correlation ID (F3): va antes del logging de requests, para que "Inicio del request" ya lleve el id
