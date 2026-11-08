@@ -1,4 +1,5 @@
 using Notifications.API.Extensions;
+using Notifications.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,14 @@ builder.Services.AddErrorHandling();
 
 builder.Services.AddControllers();
 builder.Services.AddPersistence();
+
+// Users: Notifications le pregunta si el destinatario existe (NTF-001)
+builder.Services.AddHttpClient<IUsersClient, UsersClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Services:UsersApi"]
+        ?? throw new InvalidOperationException("Falta Services:UsersApi en appsettings.json"));
+    client.Timeout = TimeSpan.FromSeconds(5);
+});
 
 var app = builder.Build();
 
