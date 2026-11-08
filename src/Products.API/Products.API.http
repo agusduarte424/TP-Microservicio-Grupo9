@@ -41,3 +41,20 @@ Content-Type: application/json
 
 ### Eliminar producto (reemplazá el id)
 DELETE {{url}}/api/products/PEGAR-ID-ACA
+
+### POST inválido: debe dar 400 con PRD-002
+POST {{url}}/api/products
+Content-Type: application/json
+
+{
+  "nombre": "",
+  "precio": 0,
+  "stock": -1,
+  "categoria": ""
+}
+
+### POST con JSON malformado: debe dar 400 con PRD-002
+POST {{url}}/api/products
+Content-Type: application/json
+
+{ "nombre": "Test",
