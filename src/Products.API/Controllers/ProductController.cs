@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Products.API.DTOs;
+using Products.API.Exceptions;
+using Products.API.Extensions;
 using Products.API.Services;
 
 namespace Products.API.Controllers
@@ -20,6 +22,8 @@ namespace Products.API.Controllers
         /// <summary>Lista productos. Filtros opcionales: ?categoria= (exacta) y ?nombre= (parcial).</summary>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ProductResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ErrorExample(500, ErrorCodes.ErrorInterno, "Error interno al procesar el producto.")]
         public async Task<IActionResult> GetAll([FromQuery] string? categoria, [FromQuery] string? nombre)
         {
             return Ok(await _service.ObtenerTodos(categoria, nombre));
@@ -29,6 +33,9 @@ namespace Products.API.Controllers
         [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ErrorExample(404, ErrorCodes.ProductoNoEncontrado, "Producto no encontrado.")]
+        [ErrorExample(500, ErrorCodes.ErrorInterno, "Error interno al procesar el producto.")]
         public async Task<IActionResult> GetById(Guid id)
         {
             return Ok(await _service.ObtenerPorId(id));
@@ -39,6 +46,10 @@ namespace Products.API.Controllers
         [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ErrorExample(400, ErrorCodes.DatosInvalidos, "El nombre es requerido.; El precio debe ser mayor a 0.")]
+        [ErrorExample(409, ErrorCodes.ProductoDuplicado, "Ya existe un producto con ese nombre en la categoría 'Electrónica'.")]
+        [ErrorExample(500, ErrorCodes.ErrorInterno, "Error interno al procesar el producto.")]
         public async Task<IActionResult> Create([FromBody] CreateProductRequest request)
         {
             var creado = await _service.Crear(request);
@@ -50,6 +61,10 @@ namespace Products.API.Controllers
         [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ErrorExample(400, ErrorCodes.DatosInvalidos, "El nombre es requerido.; El precio debe ser mayor a 0.")]
+        [ErrorExample(404, ErrorCodes.ProductoNoEncontrado, "Producto no encontrado.")]
+        [ErrorExample(500, ErrorCodes.ErrorInterno, "Error interno al procesar el producto.")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProductRequest request)
         {
             return Ok(await _service.Actualizar(id, request));
@@ -60,6 +75,11 @@ namespace Products.API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ErrorExample(404, ErrorCodes.ProductoNoEncontrado, "Producto no encontrado.")]
+        [ErrorExample(409, ErrorCodes.ProductoConOrdenesActivas, "El producto tiene órdenes activas y no puede eliminarse.",
+            Detail = "No se puede eliminar el recurso.")]
+        [ErrorExample(500, ErrorCodes.ErrorInterno, "Error interno al procesar el producto.")]
         public async Task<IActionResult> Delete(Guid id)
         {
             await _service.Eliminar(id);

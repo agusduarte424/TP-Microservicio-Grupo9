@@ -45,3 +45,12 @@
    Un 404 es una respuesta de negocio: el usuario no existe. Un timeout o un 5xx significa que no pudimos verificarlo, así que es un error interno de este servicio. Mezclarlos le diría al cliente que el usuario no existe cuando en realidad no se pudo consultar.
 3. ¿Cómo viaja el Correlation ID de Notifications a Users y dónde se ve?
    CorrelationIdHandler es un DelegatingHandler que AddCorrelationId() engancha a todos los HttpClient. Agrega el header X-Correlation-Id del request actual a la llamada saliente, y el mismo valor aparece en los logs de los dos servicios.
+
+
+## F6 - Swagger
+1. ¿De dónde saca Swagger las descripciones de los endpoints?
+   De los /// <summary> del código. GenerateDocumentationFile hace que el compilador los guarde en un .xml y IncludeXmlComments se lo pasa a Swagger.
+2. ¿Cómo se documenta un error en un endpoint?
+   Con [ProducesResponseType] para el status y [ErrorExample] para el código y el mensaje. Un filtro de Swagger convierte el atributo en un ejemplo con el contrato de error de la consigna.
+3. ¿Por qué se usa Swashbuckle 6.6.2 y no la versión más nueva?
+   Porque es la versión del plan y las 10.x cambian la API de Microsoft.OpenApi, lo que rompe los filtros. Además no puede convivir con Microsoft.AspNetCore.OpenApi, por eso se quitó.
