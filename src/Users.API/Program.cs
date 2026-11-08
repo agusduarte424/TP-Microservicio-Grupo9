@@ -10,6 +10,7 @@ builder.AddSerilogLogging();
 // para que los 5 servicios tengan la misma estructura
 builder.Services.AddCorrelationId();
 builder.Services.AddErrorHandling();
+builder.Services.AddSwaggerDocs();
 
 builder.Services.AddControllers();
 builder.Services.AddPersistence();
@@ -24,6 +25,7 @@ app.UseCorrelationId();
 // Logging (F2): log de inicio y fin de cada request
 app.UseRequestLogging();
 app.UseExceptionHandler();
+app.UseSwaggerDocs();
 
 app.MapControllers();
 
