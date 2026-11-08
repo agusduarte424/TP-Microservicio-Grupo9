@@ -28,5 +28,15 @@ namespace Notifications.API.Controllers
             var creada = await _service.Enviar(request);
             return StatusCode(StatusCodes.Status201Created, creada);
         }
+
+        /// <summary>Lista las notificaciones de un usuario, de la más reciente a la más antigua.</summary>
+        [HttpGet("{userId:guid}")]
+        [ProducesResponseType(typeof(List<NotificationResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetByUser(Guid userId)
+        {
+            return Ok(await _service.ListarPorUsuario(userId));
+        }
     }
 }

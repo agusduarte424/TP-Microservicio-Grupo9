@@ -60,6 +60,23 @@ namespace Notifications.API.Services
             return ToResponse(notification);
         }
 
+        /// <summary>
+        /// Lista las notificaciones de un usuario, de la más reciente a la más antigua.
+        /// NTF-003 si el usuario no tiene ninguna registrada.
+        /// </summary>
+        public async Task<List<NotificationResponse>> ListarPorUsuario(Guid usuarioId)
+        {
+            var notificaciones = await _repository.ObtenerPorUsuario(usuarioId);
+
+            // la consigna define el 404 de este endpoint como "el userId no tiene notificaciones registradas",
+            // así que una lista vacía es un error de negocio y no un 200 con []
+            if (notificaciones.Count == 0)
+                throw new NotFoundException(ErrorCodes.SinNotificaciones,
+                    "No se encontraron notificaciones para el usuario.");
+
+            return notificaciones.Select(ToResponse).ToList();
+        }
+
         private static NotificationResponse ToResponse(Notification n) => new()
         {
             Id = n.Id,
