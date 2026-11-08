@@ -6,10 +6,12 @@ namespace Users.API.DTOs
     public class LoginRequest
     {
         /// <summary>Email con el que se registró el usuario.</summary>
+        /// <example>maria@email.com</example>
         [Required(ErrorMessage = "El email es requerido.")]
         public string Email { get; set; } = string.Empty;
 
         /// <summary>Contraseña del usuario.</summary>
+        /// <example>MiPassword123!</example>
         [Required(ErrorMessage = "La contraseña es requerida.")]
         public string Password { get; set; } = string.Empty;
     }
