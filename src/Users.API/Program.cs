@@ -11,8 +11,10 @@ builder.Services.AddCorrelationId();
 builder.Services.AddErrorHandling();
 
 builder.Services.AddControllers();
+builder.Services.AddPersistence();
 
 var app = builder.Build();
+app.InitializeDatabase();
 
 // Correlation ID (F3): va antes del logging de requests, para que "Inicio del request" ya lleve el id
 app.UseCorrelationId();
