@@ -36,3 +36,12 @@
    Porque un hash no se puede revertir: si roban la base, no ven contraseñas. PBKDF2 con sal aleatoria y 100.000 iteraciones hace que dos usuarios con la misma contraseña tengan hashes distintos y que probar contraseñas sea lento.
 3. ¿Por qué USR-003 es 401 y USR-004 es 403?
    El 401 significa que no se pudo verificar quién sos (credenciales que no coinciden). El 403 significa que se sabe quién sos pero la cuenta tiene el acceso bloqueado.
+
+
+## S5 - Notifications
+1. ¿Qué pasa si Users API está caída cuando se envía una notificación?
+   La llamada lanza una excepción, el Service se corta antes de guardar y llega al handler genérico, que responde 500 con NTF-004. No queda ninguna notificación registrada.
+2. ¿Por qué un 404 de Users es NTF-001 y un timeout es NTF-004?
+   Un 404 es una respuesta de negocio: el usuario no existe. Un timeout o un 5xx significa que no pudimos verificarlo, así que es un error interno de este servicio. Mezclarlos le diría al cliente que el usuario no existe cuando en realidad no se pudo consultar.
+3. ¿Cómo viaja el Correlation ID de Notifications a Users y dónde se ve?
+   CorrelationIdHandler es un DelegatingHandler que AddCorrelationId() engancha a todos los HttpClient. Agrega el header X-Correlation-Id del request actual a la llamada saliente, y el mismo valor aparece en los logs de los dos servicios.
