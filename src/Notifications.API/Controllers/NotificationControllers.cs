@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Notifications.API.DTOs;
+using Notifications.API.Exceptions;
+using Notifications.API.Extensions;
 using Notifications.API.Services;
 
 namespace Notifications.API.Controllers
@@ -23,6 +25,10 @@ namespace Notifications.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ErrorExample(400, ErrorCodes.DatosInvalidos,
+            "El mensaje es requerido.; El tipo no es reconocido. Valores válidos: Email, Push o SMS.")]
+        [ErrorExample(404, ErrorCodes.UsuarioNoEncontrado, "El usuario destinatario no fue encontrado.")]
+        [ErrorExample(500, ErrorCodes.ErrorInterno, "Error interno al procesar la notificación.")]
         public async Task<IActionResult> Send([FromBody] SendNotificationRequest request)
         {
             var creada = await _service.Enviar(request);
@@ -34,6 +40,8 @@ namespace Notifications.API.Controllers
         [ProducesResponseType(typeof(List<NotificationResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ErrorExample(404, ErrorCodes.SinNotificaciones, "No se encontraron notificaciones para el usuario.")]
+        [ErrorExample(500, ErrorCodes.ErrorInterno, "Error interno al procesar la notificación.")]
         public async Task<IActionResult> GetByUser(Guid userId)
         {
             return Ok(await _service.ListarPorUsuario(userId));
