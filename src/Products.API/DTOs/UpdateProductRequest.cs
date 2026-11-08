@@ -6,25 +6,30 @@ namespace Products.API.DTOs
     public class UpdateProductRequest
     {
         /// <summary>Nombre del producto. Requerido, máximo 100 caracteres.</summary>
+        /// <example>Notebook Dell XPS 15</example>
         [Required(ErrorMessage = "El nombre es requerido.")]
         [StringLength(100, ErrorMessage = "El nombre no puede superar los 100 caracteres.")]
         public string Nombre { get; set; } = string.Empty;
 
         /// <summary>Descripción. Opcional, máximo 500 caracteres.</summary>
+        /// <example>Laptop 15 pulgadas, 32GB RAM</example>
         [StringLength(500, ErrorMessage = "La descripción no puede superar los 500 caracteres.")]
         public string? Descripcion { get; set; }
 
         /// <summary>Precio unitario. Requerido, mayor a 0.</summary>
+        /// <example>1500.00</example>
         [Required(ErrorMessage = "El precio es requerido.")]
         [Range(0.01, double.MaxValue, ErrorMessage = "El precio debe ser mayor a 0.")]
         public decimal? Precio { get; set; }
 
         /// <summary>Unidades en stock. Requerido, mayor o igual a 0.</summary>
+        /// <example>10</example>
         [Required(ErrorMessage = "El stock es requerido.")]
         [Range(0, int.MaxValue, ErrorMessage = "El stock no puede ser negativo.")]
         public int? Stock { get; set; }
 
         /// <summary>Categoría (informativa, no se valida contra una lista).</summary>
+        /// <example>Electrónica</example>
         [Required(ErrorMessage = "La categoría es requerida.")]
         public string Categoria { get; set; } = string.Empty;
     }
