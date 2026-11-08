@@ -1,4 +1,5 @@
 using Users.API.Extensions;
+using Users.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,7 @@ builder.Services.AddErrorHandling();
 
 builder.Services.AddControllers();
 builder.Services.AddPersistence();
+builder.Services.AddScoped<UserService>();
 
 var app = builder.Build();
 app.InitializeDatabase();
