@@ -9,6 +9,7 @@ builder.AddSerilogLogging();
 // Correlation ID (F3): se manda en las llamadas HTTP salientes (Notifications llama a Users)
 builder.Services.AddCorrelationId();
 builder.Services.AddErrorHandling();
+builder.Services.AddSwaggerDocs();
 
 builder.Services.AddControllers();
 builder.Services.AddPersistence();
@@ -31,6 +32,7 @@ app.UseCorrelationId();
 // Logging (F2): log de inicio y fin de cada request
 app.UseRequestLogging();
 app.UseExceptionHandler();
+app.UseSwaggerDocs();
 
 app.MapControllers();
 app.InitializeDatabase();
