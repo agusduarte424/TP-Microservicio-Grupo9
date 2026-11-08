@@ -68,63 +68,68 @@ Cada servicio sigue la misma estructura, con Products como plantilla:
 Los puertos y las URLs entre servicios están en el `appsettings.json` de cada uno (secciones
 `Urls` y `Services`) y no se escriben en el código.
 
-## Cómo ejecutarlo
+## Arquitectura
 
-**Requisitos:** SDK de .NET 10.
+Cada servicio es independiente y tiene su propia base de datos. Se comunican solo por HTTP,
+usando las URLs de la sección `Services` de su `appsettings.json`.
 
-1. Compilar toda la solución, desde la raíz del repositorio:
+```mermaid
+flowchart LR
+    cliente([Cliente / Swagger UI])
 
-   ```bash
-   dotnet build ECommerce.slnx
-   ```
+    subgraph servicios [Microservicios]
+        P["Products.API<br/>:5001"]
+        U["Users.API<br/>:5002"]
+        O["Orders.API<br/>:5003"]
+        C["Cart.API<br/>:5004"]
+        N["Notifications.API<br/>:5005"]
+    end
 
-2. Levantar cada servicio en su propia terminal. Se recomienda este orden, porque algunos
-   dependen de otros:
+    cliente --> P & U & O & C & N
 
-   ```bash
-   dotnet run --project src/Products.API
-   dotnet run --project src/Users.API
-   dotnet run --project src/Cart.API
-   dotnet run --project src/Notifications.API
-   dotnet run --project src/Orders.API
-   ```
+    O -->|valida el usuario| U
+    O -->|valida producto, stock y precio| P
+    P -->|consulta órdenes activas antes de borrar| O
+    C -->|valida producto y stock| P
+    N -->|valida el destinatario| U
+```
 
-3. Abrir el Swagger de cada servicio (ver la tabla de arriba) para probar los endpoints.
+<details>
+<summary>Versión en texto del diagrama</summary>
 
-Las bases SQLite se crean solas la primera vez que arranca cada servicio, dentro de la carpeta
-del proyecto.
+```
+ Cliente / Swagger UI
+    |
+    +--> Products.API :5001 ----(órdenes activas, antes de borrar)----> Orders.API
+    |
+    +--> Users.API :5002           (no llama a ningún servicio)
+    |
+    +--> Orders.API :5003 ------(valida el usuario)-------------------> Users.API
+    |                     +-----(valida producto, stock y precio)-----> Products.API
+    |
+    +--> Cart.API :5004 --------(valida producto y stock)-------------> Products.API
+    |
+    +--> Notifications.API :5005 --(valida el destinatario)-----------> Users.API
+```
 
-**Notas para probar:**
+</details>
 
-- En el entorno `Development`, Products usa un Orders simulado para poder borrar productos sin
-  tener Orders corriendo (`OrdersSimulado:Usar` en `appsettings.Development.json`). Para probar el
-  borrado contra el Orders real (error PRD-004), poner ese valor en `false` y levantar Orders.
-- Notifications llama a Users: sin Users arriba, el envío de una notificación responde un 500
-  con el código NTF-004.
+### Llamadas entre servicios
 
-## Persistencia propia
+| Servicio | Llama a | Para qué | Si falla |
+|---|---|---|---|
+| Cart.API | Products.API | Validar producto y stock (CRT-002, CRT-003) | 500 con CRT-005 |
+| Orders.API | Users.API | Validar que el usuario exista (ORD-003) | 500 con ORD-007 |
+| Orders.API | Products.API | Validar producto, stock y precio (ORD-004, ORD-005) | 500 con ORD-007 |
+| Notifications.API | Users.API | Validar al destinatario (NTF-001) | 500 con NTF-004 |
+| Products.API | Orders.API | Verificar órdenes activas antes de borrar (PRD-004) | 500 con PRD-005 |
+| Users.API | Ninguno | No depende de otros servicios | No aplica |
 
-La consigna menciona una librería de persistencia provista por la cátedra, pero no fue
-entregada. Por eso el grupo implementó su propia persistencia: **SQLite con Dapper**, una base
-por servicio, con una interfaz de repositorio por servicio (por ejemplo `IProductRepository`).
-Los Services solo usan esa interfaz y ningún repositorio hace llamadas HTTP. El patrón está
-explicado en `docs/persistencia.md`.
+Reglas que siguen todas las llamadas:
 
-## Logs
-
-Cada servicio escribe sus logs en la consola (formato legible) y en un archivo JSON dentro de la
-carpeta `logs/` de su proyecto. Cada registro incluye Timestamp, Nivel, Servicio, Endpoint y
-Correlation ID, y el `errorCode` cuando hay un error. Los errores de negocio se registran como
-`Warning` y los inesperados como `Error`.
-
-## Documentación
-
-| Documento | Contenido |
-|---|---|
-| `docs/Arquitectura.md` | Arquitectura y flujos entre servicios |
-| `docs/errores.md` | Contrato de error, excepciones y handlers |
-| `docs/Logging.md` | Configuración de Serilog |
-| `docs/CorrelationId.md` | Cómo viaja el Correlation ID entre servicios |
-| `docs/plantilla/swagger.md` | Cómo está armado Swagger y cómo se agrega a un servicio |
-| `docs/Servicios/` | Una guía por servicio: endpoints, archivos, errores y decisiones |
-| `docs/Preguntas.md` | Preguntas probables de la defensa, con su respuesta |
+- **Un 404 del servicio remoto es el error de negocio del servicio que llama.** Por ejemplo, si
+  Users responde 404 para un usuario, Orders devuelve ORD-003 y Notifications devuelve NTF-001.
+- **Cualquier otro fallo** (timeout, servicio caído, 5xx) es un 500 con el código interno del
+  servicio que llama, y la operación no se completa.
+- **El status HTTP se verifica siempre antes de procesar la respuesta.**
+- **El Correlation ID viaja
