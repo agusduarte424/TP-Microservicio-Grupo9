@@ -8,6 +8,7 @@ builder.AddSerilogLogging();
 // Correlation ID (F3): Users no llama a otros servicios, pero se deja igual
 // para que los 5 servicios tengan la misma estructura
 builder.Services.AddCorrelationId();
+builder.Services.AddErrorHandling();
 
 builder.Services.AddControllers();
 
@@ -18,7 +19,9 @@ app.UseCorrelationId();
 
 // Logging (F2): log de inicio y fin de cada request
 app.UseRequestLogging();
+app.UseExceptionHandler();
 
 app.MapControllers();
 
 app.Run();
+
