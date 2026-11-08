@@ -10,6 +10,7 @@ builder.Services.AddCorrelationId();
 builder.Services.AddErrorHandling();
 
 builder.Services.AddControllers();
+builder.Services.AddPersistence();
 
 var app = builder.Build();
 
@@ -21,5 +22,6 @@ app.UseRequestLogging();
 app.UseExceptionHandler();
 
 app.MapControllers();
+app.InitializeDatabase();
 
 app.Run();
