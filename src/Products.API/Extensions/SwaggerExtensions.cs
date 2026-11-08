@@ -26,6 +26,8 @@ namespace Products.API.Extensions
                 // Los XML comments (/// <summary>) de controladores y modelos aparecen como descripciones
                 var xml = Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
                 options.IncludeXmlComments(xml, includeControllerXmlComments: true);
+                // Convierte los [ErrorExample] de cada endpoint en ejemplos de error
+                options.OperationFilter<ErrorExamplesOperationFilter>();
             });
 
             return services;

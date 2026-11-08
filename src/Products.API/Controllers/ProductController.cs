@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Products.API.DTOs;
+using Products.API.Exceptions;
+using Products.API.Extensions;
 using Products.API.Services;
 
 namespace Products.API.Controllers
@@ -29,6 +31,7 @@ namespace Products.API.Controllers
         [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ErrorExample(404, ErrorCodes.ProductoNoEncontrado, "Producto no encontrado.", Instance = "/api/products/99")]
         public async Task<IActionResult> GetById(Guid id)
         {
             return Ok(await _service.ObtenerPorId(id));
