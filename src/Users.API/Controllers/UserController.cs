@@ -40,5 +40,20 @@ namespace Users.API.Controllers
         {
             return Ok(await _service.Login(request));
         }
+
+        /// <summary>
+        /// Endpoint interno: lo usan Orders y Notifications para verificar que un usuario existe.
+        /// No está definido en la consigna. Si el usuario no existe responde 404 sin errorCode,
+        /// porque el catálogo de Users no tiene un código de "no encontrado".
+        /// </summary>
+        [HttpGet("{id:guid}")]
+        [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var usuario = await _service.ObtenerPorId(id);
+            return usuario is null ? NotFound() : Ok(usuario);
+        }
     }
 }

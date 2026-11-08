@@ -106,5 +106,25 @@ namespace Users.API.Services
                 Email = user.Email
             };
         }
+
+        /// <summary>
+        /// Devuelve un usuario por id, o null si no existe.
+        /// Devuelve null en vez de lanzar una excepción porque el catálogo de Users no tiene un código
+        /// de "no encontrado": el controlador responde 404 y el servicio que llama lo interpreta.
+        /// </summary>
+        public async Task<UserResponse?> ObtenerPorId(Guid id)
+        {
+            var user = await _repository.ObtenerPorId(id);
+            if (user is null) return null;
+
+            return new UserResponse
+            {
+                Id = user.Id,
+                Nombre = user.Nombre,
+                Apellido = user.Apellido,
+                Email = user.Email,
+                Activo = user.Activo
+            };
+        }
     }
 }
