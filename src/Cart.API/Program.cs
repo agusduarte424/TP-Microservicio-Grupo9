@@ -8,6 +8,7 @@ builder.AddSerilogLogging();
 builder.Services.AddCorrelationId();
 
 builder.Services.AddControllers();
+builder.Services.AddErrorHandling();
 builder.Services.AddPersistence();
 builder.Services.AddScoped<CartService>();
 
@@ -27,6 +28,9 @@ app.UseCorrelationId();
 
 // Logging (F2): log de inicio y fin de cada request
 app.UseRequestLogging();
+
+// Errores (F4): va después del logging de requests, para que un error de negocio se registre como Warning
+app.UseExceptionHandler();
 
 app.MapControllers();
 
