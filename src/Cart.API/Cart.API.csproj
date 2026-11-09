@@ -19,6 +19,7 @@
     <Folder Include="Models\" />
     <Folder Include="Extensions\" />
     <Folder Include="DTOs\" />
+    <Folder Include="ExceptionHandlers\" />
     <Folder Include="Services\" />
   </ItemGroup>
 
