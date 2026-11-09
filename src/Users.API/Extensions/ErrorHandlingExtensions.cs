@@ -21,7 +21,7 @@ namespace Users.API.Extensions
 
             // 400 de validación: reemplaza el 400 automático de [ApiController], que no trae errorCode.
             // Cubre las Data Annotations de los DTOs y también un JSON malformado.
-            services.Configure<ApiBehaviorOptions>(options =>
+            services.PostConfigure<ApiBehaviorOptions>(options =>
             {
                 options.InvalidModelStateResponseFactory = context =>
                 {
