@@ -30,11 +30,11 @@ Cada fila indica cómo provocar el error. La columna **OK** se marca al probarlo
 
 | Código | HTTP | Cómo provocarlo | OK |
 |---|---|---|---|
-| PRD-001 | 404 | GET, PUT o DELETE con un id que no existe | ☐ |
-| PRD-002 | 400 | POST con nombre vacío, precio 0 o stock negativo; o un JSON malformado | ☐ |
-| PRD-003 | 409 | POST del mismo producto dos veces (mismo nombre y categoría) | ☐ |
-| PRD-004 | 409 | DELETE de un producto con una orden Pendiente o Confirmada | ☐ |
-| PRD-005 | 500 | DELETE con `OrdersSimulado:Usar` en `false` y Orders apagado | ☐ |
+| PRD-001 | 404 | GET, PUT o DELETE con un id que no existe | ☑ |
+| PRD-002 | 400 | POST con nombre vacío, precio 0 o stock negativo; o un JSON malformado | ☑ |
+| PRD-003 | 409 | POST del mismo producto dos veces (mismo nombre y categoría) | ☑ |
+| PRD-004 | 409 | DELETE de un producto con una orden Pendiente o Confirmada | ☑ |
+| PRD-005 | 500 | DELETE con `OrdersSimulado:Usar` en `false` y Orders apagado | ☑ |
 
 ### Users.API (`Users.API.http`)
 
@@ -45,7 +45,7 @@ Cada fila indica cómo provocar el error. La columna **OK** se marca al probarlo
 | USR-003 | 401 | POST /login con contraseña incorrecta, o con un email inexistente | ☑ |
 | USR-004 | 403 | POST /login con contraseña incorrecta tres veces seguidas | ☑ |
 | USR-005 | 403 | POST /login de un usuario con `activo = 0` e `intentosFallidos = 0` en `users.db` | ☑ |
-| USR-006 | 500 | POST /register con la tabla `users` renombrada en `users.db` |☑ ||
+| USR-006 | 500 | POST /register con la tabla `users` renombrada en `users.db` | ☑ |
 
 ### Orders.API (`Orders.API.http`)
 
@@ -63,11 +63,11 @@ Cada fila indica cómo provocar el error. La columna **OK** se marca al probarlo
 
 | Código | HTTP | Cómo provocarlo | OK |
 |---|---|---|---|
-| CRT-001 | 404 | GET, PUT o DELETE de un usuario sin carrito | ☐ |
-| CRT-002 | 404 | POST con un producto que no existe en Products; PUT o DELETE de un producto que no está en el carrito | ☐ |
-| CRT-003 | 422 | POST o PUT con una cantidad mayor al stock | ☐ |
-| CRT-004 | 400 | POST o PUT con cantidad 0 o negativa; o un JSON malformado | ☐ |
-| CRT-005 | 500 | POST válido con Products apagado | ☐ |
+| CRT-001 | 404 | GET, PUT o DELETE de un usuario sin carrito | ☑ |
+| CRT-002 | 404 | POST con un producto que no existe en Products; PUT o DELETE de un producto que no está en el carrito | ☑ |
+| CRT-003 | 422 | POST o PUT con una cantidad mayor al stock | ☑ |
+| CRT-004 | 400 | POST o PUT con cantidad 0 o negativa; o un JSON malformado | ☑ |
+| CRT-005 | 500 | POST válido con Products apagado | ☑ |
 
 ### Notifications.API (`Notifications.API.http`)
 
@@ -114,8 +114,8 @@ Cada integrante prueba servicios que no escribió. Se anota el resultado de cada
 | Agus | Users | | | |
 | Agus | Notifications | | | |
 | Pili | Orders | | | |
-| Rama | Products | | | |
-| Rama | Cart | | | |
+| Rama | Products | 10/11/2026 | OK: PRD-001 a PRD-005 con errorCode y correlationId | Ninguno. PRD-004 y PRD-005 probados con el Orders real |
+| Rama | Cart | 10/11/2026 | OK: CRT-001 a CRT-005 con errorCode y correlationId | Ninguno. CRT-003 compara el total del carrito contra el stock, como corresponde |
 
 ## Preguntas de defensa
 
