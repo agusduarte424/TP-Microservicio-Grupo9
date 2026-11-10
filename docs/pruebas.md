@@ -40,12 +40,12 @@ Cada fila indica cómo provocar el error. La columna **OK** se marca al probarlo
 
 | Código | HTTP | Cómo provocarlo | OK |
 |---|---|---|---|
-| USR-001 | 409 | POST /register con un email ya registrado | ☐ |
-| USR-002 | 400 | POST /register con nombre vacío, email sin formato y contraseña corta; o un JSON malformado | ☐ |
-| USR-003 | 401 | POST /login con contraseña incorrecta, o con un email inexistente | ☐ |
-| USR-004 | 403 | POST /login con contraseña incorrecta tres veces seguidas | ☐ |
-| USR-005 | 403 | POST /login de un usuario con `activo = 0` e `intentosFallidos = 0` en `users.db` | ☐ |
-| USR-006 | 500 | POST /register con la tabla `users` renombrada en `users.db` | ☐ |
+| USR-001 | 409 | POST /register con un email ya registrado | ☑ |
+| USR-002 | 400 | POST /register con nombre vacío, email sin formato y contraseña corta; o un JSON malformado | ☑ |
+| USR-003 | 401 | POST /login con contraseña incorrecta, o con un email inexistente | ☑ |
+| USR-004 | 403 | POST /login con contraseña incorrecta tres veces seguidas | ☑ |
+| USR-005 | 403 | POST /login de un usuario con `activo = 0` e `intentosFallidos = 0` en `users.db` | ☑ |
+| USR-006 | 500 | POST /register con la tabla `users` renombrada en `users.db` |☑ ||
 
 ### Orders.API (`Orders.API.http`)
 
@@ -73,10 +73,10 @@ Cada fila indica cómo provocar el error. La columna **OK** se marca al probarlo
 
 | Código | HTTP | Cómo provocarlo | OK |
 |---|---|---|---|
-| NTF-001 | 404 | POST /send con un usuarioId que no existe en Users | ☐ |
-| NTF-002 | 400 | POST /send con tipo `Telegrama`, campos faltantes o un JSON malformado | ☐ |
-| NTF-003 | 404 | GET de un usuario que no tiene notificaciones | ☐ |
-| NTF-004 | 500 | POST /send válido con Users apagado | ☐ |
+| NTF-001 | 404 | POST /send con un usuarioId que no existe en Users | ☑ |
+| NTF-002 | 400 | POST /send con tipo `Telegrama`, campos faltantes o un JSON malformado | ☑ |
+| NTF-003 | 404 | GET de un usuario que no tiene notificaciones | ☑ |
+| NTF-004 | 500 | POST /send válido con Users apagado | ☑ |
 
 ## Escenario de la demo en vivo
 
