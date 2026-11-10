@@ -1,13 +1,20 @@
 @baseUrl = http://localhost:5004
 @productsUrl = http://localhost:5001
-@userId = 11111111-1111-1111-1111-111111111111
-# Pegá acá el id de un producto real (sale del GET de productos)
-@productId = 2a2ca768-9fe5-4b35-9d90-cd7bec2375e6
 
-### Listar productos (para sacar un id real)
+# Cart no valida al usuario: sirve cualquier GUID como dueño del carrito
+@userId = 11111111-1111-1111-1111-111111111111
+
+# Pegá acá el id de un producto real de Products (sale del listado de abajo)
+@productId = PEGAR-ID-ACA
+
+# Un id que no existe, ni como usuario ni como producto
+@idInexistente = 3fa85f64-5717-4562-b3fc-2c963f66afa6
+
+### 0. Listar productos de Products (para sacar un id real, con stock de 2 o más)
 GET {{productsUrl}}/api/products
 
-### 1. Agregar producto al carrito (201/200)
+### 1. Agregar producto al carrito: 200 (si el usuario no tiene carrito, lo crea)
+# El header X-Correlation-Id se puede buscar después en los logs de Cart y de Products.
 POST {{baseUrl}}/api/cart/{{userId}}/items
 Content-Type: application/json
 X-Correlation-Id: prueba-cart-1
@@ -17,10 +24,19 @@ X-Correlation-Id: prueba-cart-1
   "cantidad": 1
 }
 
-### 2. Ver carrito (200)
+### 1b. Agregar el MISMO producto otra vez: 200 (suma las cantidades: queda en 2)
+POST {{baseUrl}}/api/cart/{{userId}}/items
+Content-Type: application/json
+
+{
+  "productoId": "{{productId}}",
+  "cantidad": 1
+}
+
+### 2. Ver carrito: 200
 GET {{baseUrl}}/api/cart/{{userId}}
 
-### 3. Cambiar cantidad (200)
+### 3. Cambiar cantidad: 200 (reemplaza la cantidad, no la suma)
 PUT {{baseUrl}}/api/cart/{{userId}}/items/{{productId}}
 Content-Type: application/json
 
@@ -28,25 +44,40 @@ Content-Type: application/json
   "cantidad": 2
 }
 
-### 4. Quitar producto (204)
+### 4. Quitar producto: 204
 DELETE {{baseUrl}}/api/cart/{{userId}}/items/{{productId}}
 
-### 5. Vaciar carrito (204)
+### 5. Vaciar carrito: 204 (el carrito sigue existiendo, con la lista de items vacía)
 DELETE {{baseUrl}}/api/cart/{{userId}}
 
-### ERROR CRT-001: carrito inexistente (404)
-GET {{baseUrl}}/api/cart/99999999-9999-9999-9999-999999999999
+### ERROR CRT-001: usuario sin carrito: 404
+GET {{baseUrl}}/api/cart/{{idInexistente}}
 
-### ERROR CRT-002: producto inexistente (404)
+### ERROR CRT-001: vaciar el carrito de un usuario sin carrito: 404
+DELETE {{baseUrl}}/api/cart/{{idInexistente}}
+
+### ERROR CRT-002: producto inexistente en Products: 404
 POST {{baseUrl}}/api/cart/{{userId}}/items
 Content-Type: application/json
 
 {
-  "productoId": "00000000-0000-0000-0000-000000000001",
+  "productoId": "{{idInexistente}}",
   "cantidad": 1
 }
 
-### ERROR CRT-003: stock insuficiente (422)
+### ERROR CRT-002: cambiar la cantidad de un producto que no está en el carrito: 404
+# Va después de "5. Vaciar carrito": el carrito existe pero el producto ya no está.
+PUT {{baseUrl}}/api/cart/{{userId}}/items/{{productId}}
+Content-Type: application/json
+
+{
+  "cantidad": 2
+}
+
+### ERROR CRT-002: quitar un producto que no está en el carrito: 404
+DELETE {{baseUrl}}/api/cart/{{userId}}/items/{{productId}}
+
+### ERROR CRT-003: stock insuficiente al agregar: 422
 POST {{baseUrl}}/api/cart/{{userId}}/items
 Content-Type: application/json
 
@@ -55,11 +86,44 @@ Content-Type: application/json
   "cantidad": 9999
 }
 
-### ERROR CRT-004: cantidad inválida (400)
+### ERROR CRT-003: stock insuficiente al cambiar la cantidad: 422
+# Antes agregá el producto con "1. Agregar producto al carrito".
+PUT {{baseUrl}}/api/cart/{{userId}}/items/{{productId}}
+Content-Type: application/json
+
+{
+  "cantidad": 9999
+}
+
+### ERROR CRT-004: cantidad cero al agregar: 400
 POST {{baseUrl}}/api/cart/{{userId}}/items
 Content-Type: application/json
 
 {
   "productoId": "{{productId}}",
   "cantidad": 0
+}
+
+### ERROR CRT-004: cantidad negativa al cambiar: 400
+PUT {{baseUrl}}/api/cart/{{userId}}/items/{{productId}}
+Content-Type: application/json
+
+{
+  "cantidad": -1
+}
+
+### ERROR CRT-004: JSON malformado: 400
+POST {{baseUrl}}/api/cart/{{userId}}/items
+Content-Type: application/json
+
+{ "productoId":
+
+### ERROR CRT-005: Products no responde: 500 (no se guarda nada)
+# Apagá Products (puerto 5001) y mandá un agregado válido:
+POST {{baseUrl}}/api/cart/{{userId}}/items
+Content-Type: application/json
+
+{
+  "productoId": "{{productId}}",
+  "cantidad": 1
 }
