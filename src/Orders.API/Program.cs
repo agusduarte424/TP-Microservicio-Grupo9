@@ -17,6 +17,15 @@ builder.Services.AddPersistence();
 
 builder.Services.AddScoped<OrderService>();
 
+
+// Users API: valida que el usuario de la orden exista (ORD-003)
+builder.Services.AddHttpClient<IUsersClient, UsersClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Services:UsersApi"]
+        ?? throw new InvalidOperationException("Falta Services:UsersApi en appsettings.json"));
+    client.Timeout = TimeSpan.FromSeconds(5);
+});
+
 var app = builder.Build();
 
 app.InitializeDatabase();
