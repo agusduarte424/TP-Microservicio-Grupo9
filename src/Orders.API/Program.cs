@@ -1,5 +1,7 @@
 using Orders.API.Extensions;
 
+using Orders.API.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Logging (F2): Serilog se configura antes que cualquier otra cosa
@@ -12,6 +14,8 @@ builder.Services.AddControllers();
 builder.Services.AddErrorHandling();
 builder.Services.AddSwaggerDocs();
 builder.Services.AddPersistence();
+
+builder.Services.AddScoped<OrderService>();
 
 var app = builder.Build();
 
