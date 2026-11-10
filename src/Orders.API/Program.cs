@@ -26,6 +26,15 @@ builder.Services.AddHttpClient<IUsersClient, UsersClient>(client =>
     client.Timeout = TimeSpan.FromSeconds(5);
 });
 
+
+// Products API: valida que cada producto exista, su stock y su precio (ORD-004, ORD-005)
+builder.Services.AddHttpClient<IProductsClient, ProductsClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Services:ProductsApi"]
+        ?? throw new InvalidOperationException("Falta Services:ProductsApi en appsettings.json"));
+    client.Timeout = TimeSpan.FromSeconds(5);
+});
+
 var app = builder.Build();
 
 app.InitializeDatabase();
