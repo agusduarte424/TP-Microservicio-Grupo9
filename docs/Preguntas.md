@@ -96,3 +96,11 @@
    La orden y sus items se guardan en una transacción: si falla cualquier INSERT, no se guarda nada.
 6. ¿En qué orden se valida el POST?
    Primero los datos, que no cuesta nada. Después el usuario y los productos, que requieren llamadas HTTP. Si los datos están mal, no se llama a ningún servicio.
+
+## F5 - Health checks
+1. ¿Qué diferencia hay entre /health/live y /health/ready?
+   Live solo dice si el proceso responde, sin revisar nada. Ready revisa la base y los servicios de los que depende, para saber si puede atender pedidos.
+2. ¿Cuándo un servicio está Degraded y cuándo Unhealthy?
+   Degraded cuando la base anda pero una dependencia no responde: funciona a medias. Unhealthy cuando la propia base no responde, y en ese caso responde 503.
+3. ¿Por qué el check de una dependencia llama a su /health/live y no a su /health?
+   Para evitar un ciclo: Products revisa a Orders y Orders revisa a Products. Si se pidieran el /health completo, se llamarían entre sí sin fin. Live no revisa a nadie.

@@ -51,13 +51,13 @@ Cada fila indica cómo provocar el error. La columna **OK** se marca al probarlo
 
 | Código | HTTP | Cómo provocarlo | OK |
 |---|---|---|---|
-| ORD-001 | 404 | GET o PUT /status con un id de orden que no existe | ☐ |
-| ORD-002 | 400 | POST con la lista de items vacía, cantidad 0 o usuarioId vacío | ☐ |
-| ORD-003 | 404 | POST con un usuarioId que no existe en Users | ☐ |
-| ORD-004 | 404 | POST con un productoId que no existe en Products | ☐ |
-| ORD-005 | 422 | POST con una cantidad mayor al stock del producto | ☐ |
-| ORD-006 | 409 | PUT /status con una transición no válida (por ejemplo de Confirmada a Pendiente) | ☐ |
-| ORD-007 | 500 | POST válido con Users o Products apagado | ☐ |
+| ORD-001 | 404 | GET o PUT /status con un id de orden que no existe | ☑ |
+| ORD-002 | 400 | POST con la lista de items vacía, cantidad 0 o usuarioId vacío | ☑ |
+| ORD-003 | 404 | POST con un usuarioId que no existe en Users | ☑ |
+| ORD-004 | 404 | POST con un productoId que no existe en Products | ☑ |
+| ORD-005 | 422 | POST con una cantidad mayor al stock del producto | ☑ |
+| ORD-006 | 409 | PUT /status con una transición no válida (por ejemplo de Confirmada a Pendiente) | ☑ |
+| ORD-007 | 500 | POST válido con Users o Products apagado | ☑ |
 
 ### Cart.API (`Cart.API.http`)
 
@@ -100,10 +100,10 @@ Para el paso 7 hace falta `OrdersSimulado:Usar` en `false`. Para el paso 3, un u
 
 ## Health checks
 
-- [ ] `GET /health`, `/health/ready` y `/health/live` responden JSON en los 5 servicios.
-- [ ] El estado es `Healthy`, `Degraded` o `Unhealthy`.
-- [ ] Con una dependencia apagada, `/health/ready` deja de decir `Healthy`.
-- [ ] `/health/live` solo verifica que el proceso responde.
+- [x] `GET /health`, `/health/ready` y `/health/live` responden JSON en los 5 servicios.
+- [x] El estado es `Healthy`, `Degraded` o `Unhealthy`.
+- [x] Con una dependencia apagada, `/health/ready` deja de decir `Healthy`.
+- [x] `/health/live` solo verifica que el proceso responde.
 
 ## Pruebas cruzadas
 
