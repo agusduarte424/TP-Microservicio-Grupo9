@@ -12,6 +12,9 @@ builder.Services.AddCorrelationId();
 builder.Services.AddErrorHandling();
 builder.Services.AddSwaggerDocs();
 
+// Health checks (F5): base propia y servicios de los que depende
+builder.Services.AddServiceHealthChecks(builder.Configuration);
+
 builder.Services.AddControllers();
 builder.Services.AddPersistence();
 builder.Services.AddScoped<UserService>();
@@ -28,6 +31,9 @@ app.UseExceptionHandler();
 app.UseSwaggerDocs();
 
 app.MapControllers();
+
+// Health checks (F5): /health, /health/ready y /health/live
+app.MapServiceHealthChecks();
 
 app.Run();
 
