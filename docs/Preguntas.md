@@ -63,3 +63,12 @@
    La llamada lanza una excepción, el Service se corta antes de guardar y llega al handler genérico, que responde 500 con CRT-005. Si Products responde 404, en cambio, es CRT-002.
 3. ¿Por qué CRT-003 es 422 y no 400?
    El request está bien formado, así que no es un 400. Lo que falla es una regla de negocio (no hay stock), y eso es un 422.
+
+
+## F7 - Persistencia
+1. ¿Por qué el Service usa una interfaz de repositorio y no la clase directamente?
+   Para no depender de SQLite. Si cambia la base, o se quiere probar con un repositorio falso, el Service no se toca. Además deja claro el reparto: el repositorio guarda y busca, y el Service decide las reglas.
+2. ¿Por qué ningún repositorio hace llamadas HTTP?
+   Porque un repositorio solo debe hablar con su base. Llamar a otro servicio es lógica de negocio y va en el Service, que también decide qué error devolver si esa llamada falla.
+3. ¿Por qué la persistencia es propia y no la librería de la cátedra?
+   Porque la consigna menciona una librería provista por la cátedra, pero no fue entregada. El grupo armó SQLite con Dapper detrás de una interfaz por servicio, y lo declara en el README.
