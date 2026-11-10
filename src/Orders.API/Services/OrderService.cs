@@ -1,5 +1,6 @@
 ﻿// OrderService tiene la lógica de las órdenes. Usa IOrderRepository para los datos.
 // En los próximos commits se suman los clientes de Users y Products para crear órdenes.
+using Orders.API.Exceptions;
 using Orders.API.Data;
 using Orders.API.DTOs;
 using Orders.API.Models;
@@ -20,6 +21,20 @@ namespace Orders.API.Services
         {
             var ordenes = await _repository.ObtenerTodos(usuarioId);
             return ordenes.Select(ToResponse);
+        }
+
+        /// <summary>Devuelve una orden o lanza ORD-001 si no existe.</summary>
+        public async Task<OrderResponse> ObtenerPorId(Guid id)
+        {
+            var order = await BuscarOFallar(id);
+            return ToResponse(order);
+        }
+
+        // se reutiliza en GET /{id} y en PUT /status
+        private async Task<Order> BuscarOFallar(Guid id)
+        {
+            return await _repository.ObtenerPorId(id)
+                ?? throw new NotFoundException(ErrorCodes.OrdenNoEncontrada, "Orden no encontrada.");
         }
 
         // convierte el modelo interno en el DTO que devuelve la API
