@@ -54,3 +54,12 @@
    Con [ProducesResponseType] para el status y [ErrorExample] para el código y el mensaje. Un filtro de Swagger convierte el atributo en un ejemplo con el contrato de error de la consigna.
 3. ¿Por qué se usa Swashbuckle 6.6.2 y no la versión más nueva?
    Porque es la versión del plan y las 10.x cambian la API de Microsoft.OpenApi, lo que rompe los filtros. Además no puede convivir con Microsoft.AspNetCore.OpenApi, por eso se quitó.
+
+
+## S4 - Cart
+1. ¿Por qué el stock se compara contra el total y no contra lo que se agrega?
+   Porque si ya tenés 3 unidades y agregás 2, lo que importa es que haya 5 disponibles. Compararlo solo contra el 2 dejaría pasar un carrito que supera el stock.
+2. ¿Qué pasa si Products está caído cuando se agrega un producto?
+   La llamada lanza una excepción, el Service se corta antes de guardar y llega al handler genérico, que responde 500 con CRT-005. Si Products responde 404, en cambio, es CRT-002.
+3. ¿Por qué CRT-003 es 422 y no 400?
+   El request está bien formado, así que no es un 400. Lo que falla es una regla de negocio (no hay stock), y eso es un 422.
