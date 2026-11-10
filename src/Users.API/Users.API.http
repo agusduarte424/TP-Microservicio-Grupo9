@@ -1,6 +1,134 @@
-@Users.API_HostAddress = http://localhost:5250
+@url = http://localhost:5002
 
-GET {{Users.API_HostAddress}}/weatherforecast/
-Accept: application/json
+# Pegá acá el id de un usuario real: sale de la respuesta de "1. Registrar usuario"
+@userId = PEGAR-ID-ACA
 
-###
+# Un id que no existe en la base
+@idInexistente = 3fa85f64-5717-4562-b3fc-2c963f66afa6
+
+### 1. Registrar usuario: 201 (copiá el "id" de la respuesta y pegalo en @userId)
+# La respuesta no trae password ni passwordHash.
+POST {{url}}/api/users/register
+Content-Type: application/json
+
+{
+  "nombre": "María",
+  "apellido": "González",
+  "email": "maria@email.com",
+  "password": "MiPassword123!"
+}
+
+### 2. Login correcto: 200 (id, nombre, apellido y email; sin hash)
+POST {{url}}/api/users/login
+Content-Type: application/json
+
+{
+  "email": "maria@email.com",
+  "password": "MiPassword123!"
+}
+
+### 3. Obtener usuario por id: 200 (endpoint INTERNO: lo usan Orders y Notifications)
+GET {{url}}/api/users/{{userId}}
+
+### ERROR USR-001: email repetido: 409
+# Mandá "1. Registrar usuario" dos veces: la segunda da 409.
+
+### ERROR USR-002: datos inválidos, varios problemas separados por ";": 400
+POST {{url}}/api/users/register
+Content-Type: application/json
+
+{
+  "nombre": "",
+  "apellido": "González",
+  "email": "esto-no-es-un-email",
+  "password": "123"
+}
+
+### ERROR USR-002: JSON malformado: 400
+POST {{url}}/api/users/register
+Content-Type: application/json
+
+{ "nombre": "María",
+
+### ERROR USR-002: login sin datos: 400
+POST {{url}}/api/users/login
+Content-Type: application/json
+
+{
+  "email": ""
+}
+
+### ERROR USR-003: contraseña incorrecta: 401
+POST {{url}}/api/users/login
+Content-Type: application/json
+
+{
+  "email": "maria@email.com",
+  "password": "incorrecta"
+}
+
+### ERROR USR-003: email inexistente: 401 (mismo mensaje, no revela si el email existe)
+POST {{url}}/api/users/login
+Content-Type: application/json
+
+{
+  "email": "nadie@email.com",
+  "password": "MiPassword123!"
+}
+
+### Preparación de USR-004: registrar un usuario para bloquear: 201
+POST {{url}}/api/users/register
+Content-Type: application/json
+
+{
+  "nombre": "Pedro",
+  "apellido": "Pérez",
+  "email": "pedro@email.com",
+  "password": "MiPassword123!"
+}
+
+### ERROR USR-004: mandá esta request TRES veces seguidas: 401 (USR-003), 401 (USR-003) y 403 (USR-004)
+POST {{url}}/api/users/login
+Content-Type: application/json
+
+{
+  "email": "pedro@email.com",
+  "password": "incorrecta"
+}
+
+### ERROR USR-004: bloqueado, ni con la contraseña CORRECTA se puede entrar: 403
+POST {{url}}/api/users/login
+Content-Type: application/json
+
+{
+  "email": "pedro@email.com",
+  "password": "MiPassword123!"
+}
+
+### Preparación de USR-005: registrar otro usuario: 201
+POST {{url}}/api/users/register
+Content-Type: application/json
+
+{
+  "nombre": "Ana",
+  "apellido": "López",
+  "email": "ana@email.com",
+  "password": "MiPassword123!"
+}
+
+### ERROR USR-005: bloqueo manual por fraude: 403
+# Antes, con Users APAGADO, abrí users.db con DB Browser for SQLite y en la fila de
+# ana@email.com poné activo = 0 e intentosFallidos = 0. Write Changes y levantá Users.
+POST {{url}}/api/users/login
+Content-Type: application/json
+
+{
+  "email": "ana@email.com",
+  "password": "MiPassword123!"
+}
+
+### ERROR: usuario inexistente en el endpoint interno: 404 (sin errorCode, el catálogo no define uno)
+GET {{url}}/api/users/{{idInexistente}}
+
+### ERROR USR-006: falla de la base: 500
+# Con Users corriendo, abrí users.db con DB Browser y renombrá la tabla "users" a

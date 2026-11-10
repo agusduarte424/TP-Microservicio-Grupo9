@@ -1,6 +1,95 @@
-@Notifications.API_HostAddress = http://localhost:5079
+@url = http://localhost:5005
+@usersUrl = http://localhost:5002
 
-GET {{Notifications.API_HostAddress}}/weatherforecast/
-Accept: application/json
+# Pegá acá el id de un usuario real de Users: sale de la respuesta de "0. Registrar un usuario"
+@usuarioId = PEGAR-ID-ACA
 
-###
+# Un id que no existe: sirve para NTF-001 (en Users) y NTF-003 (sin notificaciones)
+@idInexistente = 3fa85f64-5717-4562-b3fc-2c963f66afa6
+
+### 0. Preparación: registrar un usuario en Users (hace falta Users corriendo en el 5002)
+# Copiá el "id" de la respuesta y pegalo en @usuarioId. Si el email ya existe, da 409: usá otro.
+POST {{usersUrl}}/api/users/register
+Content-Type: application/json
+
+{
+  "nombre": "Ana",
+  "apellido": "López",
+  "email": "ana.notificaciones@email.com",
+  "password": "MiPassword123!"
+}
+
+### ERROR NTF-003: el usuario todavía no tiene notificaciones: 404
+# Este GET va ANTES de enviar la primera notificación.
+GET {{url}}/api/notifications/{{usuarioId}}
+
+### 1. Enviar notificación: 201 (estado "Enviada", el envío es simulado)
+POST {{url}}/api/notifications/send
+Content-Type: application/json
+
+{
+  "usuarioId": "{{usuarioId}}",
+  "mensaje": "Su orden fue confirmada.",
+  "tipo": "Email"
+}
+
+### 2. Enviar otra de tipo Push: 201
+POST {{url}}/api/notifications/send
+Content-Type: application/json
+
+{
+  "usuarioId": "{{usuarioId}}",
+  "mensaje": "Su pedido salió del depósito.",
+  "tipo": "Push"
+}
+
+### 3. Listar las notificaciones del usuario: 200 (la más reciente primero)
+GET {{url}}/api/notifications/{{usuarioId}}
+
+### ERROR NTF-001: el usuario destinatario no existe en Users: 404
+POST {{url}}/api/notifications/send
+Content-Type: application/json
+
+{
+  "usuarioId": "{{idInexistente}}",
+  "mensaje": "Hola",
+  "tipo": "Email"
+}
+
+### ERROR NTF-002: tipo no reconocido: 400
+POST {{url}}/api/notifications/send
+Content-Type: application/json
+
+{
+  "usuarioId": "{{usuarioId}}",
+  "mensaje": "Hola",
+  "tipo": "Telegrama"
+}
+
+### ERROR NTF-002: campos faltantes, varios problemas separados por ";": 400
+POST {{url}}/api/notifications/send
+Content-Type: application/json
+
+{
+  "mensaje": ""
+}
+
+### ERROR NTF-002: JSON malformado: 400
+POST {{url}}/api/notifications/send
+Content-Type: application/json
+
+{ "mensaje": "Hola",
+
+### ERROR NTF-003: usuario sin notificaciones: 404 (cualquier id que no tenga envíos)
+GET {{url}}/api/notifications/{{idInexistente}}
+
+### ERROR NTF-004: Users no responde: 500 (la notificación NO se guarda)
+# Apagá Users (puerto 5002) y mandá un envío válido:
+POST {{url}}/api/notifications/send
+Content-Type: application/json
+
+{
+  "usuarioId": "{{usuarioId}}",
+  "mensaje": "Su orden fue confirmada.",
+  "tipo": "Email"
+}
