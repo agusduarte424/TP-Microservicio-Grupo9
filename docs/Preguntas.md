@@ -83,7 +83,7 @@
 3. ¿Cómo se prueba USR-005 si no hay un endpoint para bloquear usuarios?
    Se edita la base a mano: activo = 0 e intentosFallidos = 0 en users.db. Con menos de 3 intentos, el login lo distingue como bloqueo manual y responde USR-005.
 
-   ## S3 - Orders
+## S3 - Orders
 1. ¿Por qué se guarda el precio unitario en la orden?
    Porque si después cambia el precio en Products, la orden tiene que seguir mostrando lo que se cobró. Por eso se copia en el momento de crearla.
 2. ¿Qué pasa si Users está caído cuando se crea una orden?
