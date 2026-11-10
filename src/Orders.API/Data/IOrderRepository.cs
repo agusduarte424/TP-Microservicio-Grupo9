@@ -10,5 +10,12 @@ namespace Orders.API.Data
 
         /// <summary>Devuelve la orden con sus items, o null si no existe.</summary>
         Task<Order?> ObtenerPorId(Guid id);
+
+
+        /// <summary>Guarda una orden nueva con todos sus items, en una sola transacción.</summary>
+        Task Crear(Order order);
+
+        /// <summary>Cambia el estado de una orden y guarda la fecha del cambio.</summary>
+        Task ActualizarEstado(Guid id, string estado, DateTime fechaActualizacion);
     }
 }

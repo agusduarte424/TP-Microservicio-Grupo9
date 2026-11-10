@@ -55,6 +55,55 @@ namespace Orders.API.Data
             return ToOrder(row, items);
         }
 
+        public async Task Crear(Order order)
+        {
+            using var conn = CreateConnection();
+            await conn.OpenAsync();
+
+            // todo en una transacción: o se guarda la orden con todos sus items, o no se guarda nada
+            using var tx = conn.BeginTransaction();
+
+            await conn.ExecuteAsync("""
+                INSERT INTO orders (id, usuarioId, total, estado, fechaCreacion, fechaActualizacion)
+                VALUES (@Id, @UsuarioId, @Total, @Estado, @FechaCreacion, NULL)
+            """, new
+            {
+                Id = order.Id.ToString(),
+                UsuarioId = order.UsuarioId.ToString(),
+                Total = (double)order.Total,
+                order.Estado,
+                FechaCreacion = order.FechaCreacion.ToString("o", CultureInfo.InvariantCulture)
+            }, tx);
+
+            // Dapper ejecuta el INSERT una vez por cada item de la lista
+            await conn.ExecuteAsync("""
+                INSERT INTO order_items (orderId, productoId, cantidad, precioUnitario)
+                VALUES (@OrderId, @ProductoId, @Cantidad, @PrecioUnitario)
+            """, order.Items.Select(i => new
+            {
+                OrderId = order.Id.ToString(),
+                ProductoId = i.ProductoId.ToString(),
+                i.Cantidad,
+                PrecioUnitario = (double)i.PrecioUnitario
+            }), tx);
+
+            tx.Commit();
+        }
+
+        public async Task ActualizarEstado(Guid id, string estado, DateTime fechaActualizacion)
+        {
+            using var conn = CreateConnection();
+
+            await conn.ExecuteAsync(
+                "UPDATE orders SET estado = @Estado, fechaActualizacion = @Fecha WHERE id = @Id",
+                new
+                {
+                    Id = id.ToString(),
+                    Estado = estado,
+                    Fecha = fechaActualizacion.ToString("o", CultureInfo.InvariantCulture)
+                });
+        }
+
         // convierte las filas de SQLite (texto y números) en el modelo Order
         private static Order ToOrder(OrderRow row, IEnumerable<OrderItemRow> items) => new()
         {
