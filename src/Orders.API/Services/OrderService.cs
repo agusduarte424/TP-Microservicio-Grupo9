@@ -1,8 +1,8 @@
-﻿// OrderService tiene la lógica de las órdenes. Usa IOrderRepository para los datos.
-// En los próximos commits se suman los clientes de Users y Products para crear órdenes.
-using Orders.API.Exceptions;
+﻿// OrderService tiene la lógica de las órdenes. Usa IOrderRepository para los datos
+// e IUsersClient / IProductsClient para validar usuario, productos y stock al crear.
 using Orders.API.Data;
 using Orders.API.DTOs;
+using Orders.API.Exceptions;
 using Orders.API.Models;
 
 namespace Orders.API.Services
@@ -20,7 +20,6 @@ namespace Orders.API.Services
             _productsClient = productsClient;
         }
 
-
         /// <summary>Lista las órdenes; si viene usuarioId, solo las de ese usuario.</summary>
         public async Task<IEnumerable<OrderResponse>> ObtenerTodas(Guid? usuarioId)
         {
@@ -34,7 +33,6 @@ namespace Orders.API.Services
             var order = await BuscarOFallar(id);
             return ToResponse(order);
         }
-
 
         /// <summary>
         /// Crea una orden en estado Pendiente. Valida los datos (ORD-002), el usuario (ORD-003),
@@ -84,6 +82,33 @@ namespace Orders.API.Services
 
             await _repository.Crear(order);
             return ToResponse(order);
+        }
+
+        /// <summary>
+        /// Cambia el estado de una orden. ORD-002 si el estado no es uno de los 5,
+        /// ORD-001 si la orden no existe, ORD-006 si la transición no está permitida.
+        /// </summary>
+        public async Task<OrderStatusResponse> CambiarEstado(Guid id, UpdateOrderStatusRequest request)
+        {
+            var nuevo = EstadoOrden.Normalizar(request.Estado)
+                ?? throw new ValidationException(ErrorCodes.DatosInvalidos,
+                    $"Estado inválido. Valores posibles: {string.Join(", ", EstadoOrden.Todos)}.");
+
+            var order = await BuscarOFallar(id);
+
+            if (!EstadoOrden.PuedeCambiar(order.Estado, nuevo))
+                throw new ConflictException(ErrorCodes.TransicionInvalida,
+                    $"Una orden en estado '{order.Estado}' no puede pasar a '{nuevo}'.");
+
+            var fecha = DateTime.UtcNow;
+            await _repository.ActualizarEstado(order.Id, nuevo, fecha);
+
+            return new OrderStatusResponse
+            {
+                Id = order.Id,
+                Estado = nuevo,
+                FechaActualizacion = fecha
+            };
         }
 
         // ORD-002: junta todos los problemas en un solo mensaje, separados por punto y coma.

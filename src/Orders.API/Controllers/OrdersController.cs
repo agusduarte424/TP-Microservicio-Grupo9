@@ -61,5 +61,23 @@ namespace Orders.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = orden.Id }, orden);
         }
 
+
+        /// <summary>Cambia el estado de una orden siguiendo las transiciones permitidas.</summary>
+        [HttpPut("{id:guid}/status")]
+        [ProducesResponseType(typeof(OrderStatusResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ErrorExample(400, ErrorCodes.DatosInvalidos, "Estado inválido. Valores posibles: Pendiente, Confirmada, Enviada, Entregada, Cancelada.")]
+        [ErrorExample(404, ErrorCodes.OrdenNoEncontrada, "Orden no encontrada.")]
+        [ErrorExample(409, ErrorCodes.TransicionInvalida, "Una orden en estado 'Entregada' no puede pasar a 'Pendiente'.",
+            Detail = "No se puede modificar el estado.")]
+        [ErrorExample(500, ErrorCodes.ErrorInterno, "Error interno al procesar la orden.")]
+        public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateOrderStatusRequest request)
+        {
+            return Ok(await _service.CambiarEstado(id, request));
+        }
+
     }
 }
