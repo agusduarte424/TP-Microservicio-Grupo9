@@ -82,3 +82,17 @@
    Se manda un X-Correlation-Id conocido en el request y se busca ese valor en las consolas de los dos servicios involucrados. Tiene que aparecer en los logs de ambos.
 3. ¿Cómo se prueba USR-005 si no hay un endpoint para bloquear usuarios?
    Se edita la base a mano: activo = 0 e intentosFallidos = 0 en users.db. Con menos de 3 intentos, el login lo distingue como bloqueo manual y responde USR-005.
+
+## S3 - Orders
+1. ¿Por qué se guarda el precio unitario en la orden?
+   Porque si después cambia el precio en Products, la orden tiene que seguir mostrando lo que se cobró. Por eso se copia en el momento de crearla.
+2. ¿Qué pasa si Users está caído cuando se crea una orden?
+   UsersClient lanza una excepción, el Service se corta antes de guardar y el handler genérico responde 500 con ORD-007. Si Users responde 404, en cambio, es ORD-003.
+3. ¿Qué transiciones de estado permiten y por qué?
+   Pendiente a Confirmada o Cancelada, Confirmada a Enviada o Cancelada, y Enviada a Entregada. Entregada y Cancelada son finales. La consigna no las define, así que seguimos el ciclo real de un pedido: se cancela solo lo que todavía no se envió.
+4. ¿Por qué ORD-005 es 422 y ORD-006 es 409?
+   El stock insuficiente es una regla de negocio que impide procesar un request bien formado (422). La transición inválida choca con el estado actual de la orden (409).
+5. ¿Cómo se garantiza que no quede una orden sin items en la base?
+   La orden y sus items se guardan en una transacción: si falla cualquier INSERT, no se guarda nada.
+6. ¿En qué orden se valida el POST?
+   Primero los datos, que no cuesta nada. Después el usuario y los productos, que requieren llamadas HTTP. Si los datos están mal, no se llama a ningún servicio.
