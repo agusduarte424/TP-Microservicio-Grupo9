@@ -42,5 +42,24 @@ namespace Orders.API.Controllers
             return Ok(await _service.ObtenerPorId(id));
         }
 
+
+        /// <summary>Crea una orden en estado Pendiente. Valida usuario, productos y stock.</summary>
+        [HttpPost]
+        [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ErrorExample(400, ErrorCodes.DatosInvalidos, "La orden debe tener al menos un item.")]
+        [ErrorExample(404, ErrorCodes.UsuarioNoEncontrado, "Usuario no encontrado al crear la orden.")]
+        [ErrorExample(404, ErrorCodes.ProductoNoEncontrado, "Producto no encontrado al crear la orden.")]
+        [ErrorExample(422, ErrorCodes.StockInsuficiente, "Stock insuficiente para uno o más productos.")]
+        [ErrorExample(500, ErrorCodes.ErrorInterno, "Error interno al procesar la orden.")]
+        public async Task<IActionResult> Create([FromBody] CreateOrderRequest request)
+        {
+            var orden = await _service.Crear(request);
+            return CreatedAtAction(nameof(GetById), new { id = orden.Id }, orden);
+        }
+
     }
 }
