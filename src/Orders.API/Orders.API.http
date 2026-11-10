@@ -1,6 +1,91 @@
-@Orders.API_HostAddress = http://localhost:5271
+@url = http://localhost:5003
 
-GET {{Orders.API_HostAddress}}/weatherforecast/
-Accept: application/json
+# Ids reales: el usuario sale de Users (POST /api/users/register)
+# y el producto de Products (POST /api/products)
+@usuarioId = 709778ec-aecd-481d-bccb-d504014488ed
+@productoId = 2aa404bf-0ae9-49b1-9157-315f5b12f302
 
-###
+# Pegá acá el "id" que devuelve "1. Crear orden"
+@ordenId = PEGAR-ORDEN-ID
+
+# Un id que no existe en ninguna base
+@idInexistente = 3fa85f64-5717-4562-b3fc-2c963f66afa6
+
+### 1. Crear orden: 201 (Pendiente, precio copiado de Products, total calculado)
+# El X-Correlation-Id fijo permite buscarlo en las consolas de Orders, Users y Products.
+POST {{url}}/api/orders
+Content-Type: application/json
+X-Correlation-Id: demo-orders-1
+
+{
+  "usuarioId": "{{usuarioId}}",
+  "items": [ { "productoId": "{{productoId}}", "cantidad": 2 } ]
+}
+
+### 2. Listar todas las órdenes: 200
+GET {{url}}/api/orders
+
+### 3. Listar las órdenes de un usuario: 200
+GET {{url}}/api/orders?usuarioId={{usuarioId}}
+
+### 4. Detalle de una orden: 200
+GET {{url}}/api/orders/{{ordenId}}
+
+### 5. Confirmar la orden: 200 (Pendiente → Confirmada)
+PUT {{url}}/api/orders/{{ordenId}}/status
+Content-Type: application/json
+
+{ "estado": "Confirmada" }
+
+### ERROR ORD-001: la orden no existe: 404
+GET {{url}}/api/orders/{{idInexistente}}
+
+### ERROR ORD-002: orden sin items: 400
+POST {{url}}/api/orders
+Content-Type: application/json
+
+{ "usuarioId": "{{usuarioId}}", "items": [] }
+
+### ERROR ORD-002: varios problemas juntos, separados por ";": 400
+POST {{url}}/api/orders
+Content-Type: application/json
+
+{ "usuarioId": "00000000-0000-0000-0000-000000000000", "items": [ { "productoId": "{{productoId}}", "cantidad": 0 } ] }
+
+### ERROR ORD-002: estado que no existe: 400
+PUT {{url}}/api/orders/{{ordenId}}/status
+Content-Type: application/json
+
+{ "estado": "Volando" }
+
+### ERROR ORD-003: el usuario no existe en Users: 404
+POST {{url}}/api/orders
+Content-Type: application/json
+
+{ "usuarioId": "{{idInexistente}}", "items": [ { "productoId": "{{productoId}}", "cantidad": 1 } ] }
+
+### ERROR ORD-004: el producto no existe en Products: 404
+POST {{url}}/api/orders
+Content-Type: application/json
+
+{ "usuarioId": "{{usuarioId}}", "items": [ { "productoId": "{{idInexistente}}", "cantidad": 1 } ] }
+
+### ERROR ORD-005: más cantidad que el stock: 422
+POST {{url}}/api/orders
+Content-Type: application/json
+
+{ "usuarioId": "{{usuarioId}}", "items": [ { "productoId": "{{productoId}}", "cantidad": 999 } ] }
+
+### ERROR ORD-006: transición inválida: 409
+# Mandalo después de "5. Confirmar la orden": una Confirmada no puede volver a Pendiente.
+PUT {{url}}/api/orders/{{ordenId}}/status
+Content-Type: application/json
+
+{ "estado": "Pendiente" }
+
+### ERROR ORD-007: Users o Products apagado: 500
+# Apagá Users (Ctrl + C en su consola) y mandá este request.
+POST {{url}}/api/orders
+Content-Type: application/json
+
+{ "usuarioId": "{{usuarioId}}", "items": [ { "productoId": "{{productoId}}", "cantidad": 1 } ] }
