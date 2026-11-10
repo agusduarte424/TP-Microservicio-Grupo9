@@ -1,60 +1,89 @@
 @url = http://localhost:5001
 
-### Listar productos
-GET {{url}}/api/products
+# Pegá acá el id de un producto real: sale de la respuesta de "1. Crear producto" o del listado
+@productId = PEGAR-ID-ACA
 
-### Crear producto
+# Un id que no existe en la base
+@idInexistente = 3fa85f64-5717-4562-b3fc-2c963f66afa6
+
+### 1. Crear producto: 201 (copiá el "id" de la respuesta y pegalo en @productId)
 POST {{url}}/api/products
 Content-Type: application/json
 
 {
   "nombre": "Notebook Dell XPS 15",
-  "descripcion": "Notebook de alto rendimiento",
+  "descripcion": "Laptop 15 pulgadas, 32GB RAM",
   "precio": 1500.00,
   "stock": 10,
   "categoria": "Electrónica"
 }
 
-### Crear sin precio (tiene que dar 400)
-POST {{url}}/api/products
-Content-Type: application/json
+### 2. Listar productos: 200
+GET {{url}}/api/products
 
-{
-  "nombre": "Mouse",
-  "stock": 5,
-  "categoria": "Accesorios"
-}
+### 3. Listar con filtros: 200 (categoría exacta y nombre parcial)
+GET {{url}}/api/products?categoria=Electr%C3%B3nica&nombre=Notebook
 
+### 4. Obtener por id: 200
+GET {{url}}/api/products/{{productId}}
 
-### Actualizar producto (reemplazá el id)
-PUT {{url}}/api/products/PEGAR-ID-ACA
+### 5. Actualizar producto: 200
+PUT {{url}}/api/products/{{productId}}
 Content-Type: application/json
 
 {
   "nombre": "Notebook Dell XPS 15",
-  "descripcion": "Notebook de alto rendimiento",
+  "descripcion": "Laptop 15 pulgadas, 64GB RAM",
   "precio": 1750.00,
   "stock": 8,
   "categoria": "Electrónica"
 }
 
+### 6. Eliminar producto: 204 (el producto no tiene que tener órdenes activas)
+DELETE {{url}}/api/products/{{productId}}
 
-### Eliminar producto (reemplazá el id)
-DELETE {{url}}/api/products/PEGAR-ID-ACA
+### ERROR PRD-001: producto inexistente: 404
+GET {{url}}/api/products/{{idInexistente}}
 
-### POST inválido: debe dar 400 con PRD-002
+### ERROR PRD-001: actualizar un producto inexistente: 404
+PUT {{url}}/api/products/{{idInexistente}}
+Content-Type: application/json
+
+{
+  "nombre": "Cualquiera",
+  "precio": 10,
+  "stock": 1,
+  "categoria": "Otros"
+}
+
+### ERROR PRD-002: datos inválidos, varios problemas separados por ";": 400
 POST {{url}}/api/products
 Content-Type: application/json
 
 {
   "nombre": "",
+  "descripcion": "Prueba",
   "precio": 0,
   "stock": -1,
-  "categoria": ""
+  "categoria": "Electrónica"
 }
 
-### POST con JSON malformado: debe dar 400 con PRD-002
+### ERROR PRD-002: JSON malformado: 400
 POST {{url}}/api/products
 Content-Type: application/json
 
 { "nombre": "Test",
+
+### ERROR PRD-003: nombre duplicado en la categoría: 409
+# Mandá "1. Crear producto" dos veces: la segunda da 409.
+
+### ERROR PRD-004: producto con órdenes activas: 409
+# Con Orders simulado (Development): poné el id del producto entre comillas en
+#   appsettings.Development.json → "ProductosConOrdenesActivas": ["<id>"]
+# Con Orders real: creá una orden Pendiente que incluya el producto.
+# Después, este DELETE da 409:
+DELETE {{url}}/api/products/{{productId}}
+
+### ERROR PRD-005: Orders no responde al borrar: 500 (el producto NO se borra)
+# Poné "OrdersSimulado:Usar": false en appsettings.Development.json, dejá Orders APAGADO y mandá:
+DELETE {{url}}/api/products/{{productId}}
