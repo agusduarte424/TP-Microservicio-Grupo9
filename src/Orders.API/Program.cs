@@ -9,9 +9,8 @@ builder.AddSerilogLogging();
 builder.Services.AddCorrelationId();
 
 builder.Services.AddControllers();
-
 builder.Services.AddErrorHandling();
-
+builder.Services.AddSwaggerDocs();
 builder.Services.AddPersistence();
 
 var app = builder.Build();
@@ -24,9 +23,11 @@ app.UseCorrelationId();
 // Logging (F2): log de inicio y fin de cada request
 app.UseRequestLogging();
 
-
 // Errores (F4): va después del logging de requests, para que un error de negocio se registre como Warning
 app.UseExceptionHandler();
+
+// Swagger (F6): documentación en /swagger
+app.UseSwaggerDocs();
 
 app.MapControllers();
 
