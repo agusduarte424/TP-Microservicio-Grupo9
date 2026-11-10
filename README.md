@@ -50,7 +50,7 @@ Cada servicio sigue la misma estructura, con Products como plantilla:
 ├── Data/                Repositorios con SQLite y Dapper, detrás de una interfaz
 ├── Exceptions/          ErrorCodes y excepciones de dominio
 ├── ExceptionHandlers/   Un IExceptionHandler por tipo de excepción
-├── Extensions/          Bloques transversales (logging, Correlation ID, errores, Swagger)
+├── Extensions/          Bloques transversales (logging, Correlation ID, errores, Swagger, health checks)
 ├── logs/                Archivos de log de Serilog (no se versionan)
 └── Program.cs           Solo compone los bloques
 ```
@@ -238,6 +238,14 @@ Respuestas reales de error de cada servicio, con `errorCode` y `errorMessage`. E
 ![USR-004](docs/capturas/users-05-usr004-403.png)
 ![USR-005](docs/capturas/users-06-usr005-403.png)
 
+### Orders.API
+
+![Swagger de Orders](docs/capturas/orders-01-swagger.png)
+![ORD-001](docs/capturas/orders-02-ord001-404.png)
+![ORD-003](docs/capturas/orders-03-ord003-404.png)
+![ORD-005](docs/capturas/orders-04-ord005-422.png)
+![ORD-006](docs/capturas/orders-05-ord006-409.png)
+
 ### Notifications.API
 
 ![Swagger de Notifications](docs/capturas/notifications-01-swagger.png)
@@ -295,6 +303,16 @@ carpeta `logs/` de su proyecto. Cada registro incluye Timestamp, Nivel, Servicio
 Correlation ID, y el `errorCode` cuando hay un error. Los errores de negocio se registran como
 `Warning` y los inesperados como `Error`.
 
+## Health checks
+
+Los 5 servicios exponen `GET /health`, `/health/ready` y `/health/live`, con respuesta JSON:
+
+- `/health/live` solo verifica que el proceso responde.
+- `/health/ready` y `/health` revisan la base propia y cada servicio del que depende.
+- El estado es `Healthy` si todo responde, `Degraded` si cae una dependencia y `Unhealthy` (503) si cae la base.
+
+Ejemplo: http://localhost:5003/health. Más detalle en `docs/HealthChecks.md`.
+
 ## Documentación
 
 | Documento | Contenido |
@@ -303,6 +321,8 @@ Correlation ID, y el `errorCode` cuando hay un error. Los errores de negocio se 
 | `docs/errores.md` | Contrato de error, excepciones y handlers |
 | `docs/Logging.md` | Configuración de Serilog |
 | `docs/CorrelationId.md` | Cómo viaja el Correlation ID entre servicios |
+| `docs/HealthChecks.md` | Health checks: endpoints, estados y qué revisa cada servicio |
+| `docs/pruebas.md` | Checklist de los 27 errores, demo de la defensa y pruebas cruzadas |
 | `docs/plantilla/swagger.md` | Cómo está armado Swagger y cómo se agrega a un servicio |
 | `docs/Servicios/` | Una guía por servicio: endpoints, archivos, errores y decisiones |
 | `docs/Preguntas.md` | Preguntas probables de la defensa, con su respuesta |
