@@ -6,10 +6,11 @@ namespace Orders.API.Extensions
 {
     public static class PersistenceExtensions
     {
-        /// <summary>Registra el inicializador de la base. En el próximo commit se suma el repositorio.</summary>
+        /// <summary>Registra el inicializador y el repositorio de órdenes.</summary>
         public static IServiceCollection AddPersistence(this IServiceCollection services)
         {
             services.AddSingleton<DatabaseInitializer>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
             return services;
         }
 
