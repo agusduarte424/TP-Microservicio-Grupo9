@@ -111,9 +111,9 @@ Cada integrante prueba servicios que no escribió. Se anota el resultado de cada
 
 | Quién prueba | Servicio | Fecha | Resultado | Problemas encontrados |
 |---|---|---|---|---|
-| Agus | Users | | | |
-| Agus | Notifications | | | |
-| Pili | Orders | | | |
+| Agus | Users | 10/11/2026 | OK: 6 códigos USR, contrato de error y sin PasswordHash | Ninguno |
+| Agus | Notifications | 10/11/2026 | OK: 4 códigos NTF, listado ordenado y sin guardar con Users apagado | Ninguno |
+| Pili | Orders | 10/11/2026 | OK: 7 códigos ORD, contrato de error con 8 campos y transiciones de estado | Ninguno |
 | Rama | Products | 10/11/2026 | OK: PRD-001 a PRD-005 con errorCode y correlationId | Ninguno. PRD-004 y PRD-005 probados con el Orders real |
 | Rama | Cart | 10/11/2026 | OK: CRT-001 a CRT-005 con errorCode y correlationId | Ninguno. CRT-003 compara el total del carrito contra el stock, como corresponde |
 
