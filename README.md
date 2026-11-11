@@ -254,6 +254,15 @@ Respuestas reales de error de cada servicio, con `errorCode` y `errorMessage`. E
 ![NTF-003](docs/capturas/notifications-04-ntf003-404.png)
 ![NTF-004](docs/capturas/notifications-05-ntf004-500.png)
 
+### Cart.API
+
+![Swagger de Cart](docs/capturas/cart-01-swagger.png)
+![CRT-001](docs/capturas/cart-02-crt001-404.png)
+![CRT-002](docs/capturas/cart-03-crt002-404.png)
+![CRT-003](docs/capturas/cart-04-crt003-422.png)
+![CRT-004](docs/capturas/cart-05-crt004-400.png)
+![CRT-005](docs/capturas/cart-06-crt005-500.png)
+
 ## Cómo ejecutarlo
 
 **Requisitos:** SDK de .NET 10.
